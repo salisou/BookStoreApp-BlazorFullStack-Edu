@@ -99,6 +99,24 @@ Da .NET CLI:
 ```sql
 dotnet ef database update
 ```
+### Problema:
+A causa di un cambiamento in **Entity Framework Core 7**, potresti incontrare il seguente errore quando tenti di impalcatura (scaffold):
+
+### Soluzione:
+Per risolvere questo problema, aggiungi `Encrypt=False` alla tua stringa di connessione nel file di configurazione. 
+
+Esempio di stringa di connessione:
+
+```plaintext
+'Server=localhost\\sqlexpress; Database=BookStoreDb; Trusted_Connection=true; MultipleActiveResultSets=true; Encrypt=False'
+```
+
+### Spiegazione:
+
+- **Titolo e Sezione "Avviso"**: Il titolo e la sezione chiariscono che si tratta di un avviso relativo a un problema comune con Entity Framework Core 7.
+- **Descrizione del problema**: Ho inserito il messaggio di errore nel blocco di codice per una facile identificazione.
+- **Soluzione**: Ho spiegato chiaramente come risolvere il problema, includendo l'esempio di una stringa di connessione con `Encrypt=False`.
+- **Pacchetto richiesto**: Ho ricordato che è necessario il pacchetto `Microsoft.EntityFrameworkCore.SqlServer`.
 
 ```sql
 ```
