@@ -5,7 +5,7 @@ Questo progetto combina le potenzialità di ASP.NET 8 con Blazor e le API RESTfu
 
 ## Database Schema
 
-### la query SQL per creare la tabella `Authors` nel database:
+### Tabella `Authors`
 ```sql
 CREATE TABLE [dbo].[Authors]
 (
@@ -15,3 +15,13 @@ CREATE TABLE [dbo].[Authors]
     [Bio] NVARCHAR(250) NULL
 )
 ```
+### Tabella `Authors`
+
+```sql
+CREATE TABLE [dbo].[Authors]
+(
+    [Id] INT NOT NULL PRIMARY KEY IDENTITY, 
+    [FirstName] NVARCHAR(50) NULL, 
+    [LastName] NVARCHAR(50) NULL, 
+    [Bio] NVARCHAR(250) NULL
+);
