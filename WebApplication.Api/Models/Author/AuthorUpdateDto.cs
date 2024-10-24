@@ -2,10 +2,10 @@
 
 namespace WebApplicationApi.Models.Author
 {
-	/// <summary>
-	/// DTO utilizzato per aggiornare le informazioni di un autore esistente
-	/// </summary>
-	public class AuthorUpdateDto : BaseDto
+    /// <summary>
+    /// DTO utilizzato per aggiornare le informazioni di un autore esistente
+    /// </summary>
+    public class AuthorUpdateDto : BaseDto
 	{
 
 		// Il nome dell'autore è obbligatorio 
