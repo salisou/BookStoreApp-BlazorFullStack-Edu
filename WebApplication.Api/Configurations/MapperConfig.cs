@@ -21,19 +21,30 @@ namespace WebApplicationApi.Configurations
 			CreateMap<AuthorReadOlnlyDto, Author>().ReverseMap();
 
 
+			// Mappatura tra il modello Book e il DTO BookReadOnlyDto.
+			// BookReadOnlyDto rappresenta i dati essenziali per la lettura di un libro (ID, Titolo, Prezzo, Nome Autore).
 			CreateMap<Book, BookReadOnlyDto>()
+				// Configura il campo AuthorName in BookReadOnlyDto combinando i campi FirstName e LastName dell'autore.
 				.ForMember(q => q.AuthorName,
 						   d => d.MapFrom(map => $"{map.Author.FirstName} {map.Author.LastName}"))
 				.ReverseMap();
 
+			// Mappatura tra il modello Book e il DTO BookDetailsDto.
+			// BookDetailsDto è usato per mostrare i dettagli completi di un libro, inclusi i dettagli dell'autore.
 			CreateMap<Book, BookDetailsDto>()
+				// Configura il campo AuthorName in BookDetailsDto combinando i campi FirstName e LastName dell'autore.
 				.ForMember(q => q.AuthorName,
 						   d => d.MapFrom(map => $"{map.Author.FirstName} {map.Author.LastName}"))
 				.ReverseMap();
 
+			// Mappatura tra il DTO BookCreateDto e il modello Book.
+			// BookCreateDto rappresenta i dati necessari per la creazione di un nuovo libro (Titolo, ISBN, Prezzo, ecc.).
 			CreateMap<BookCreateDto, Book>().ReverseMap();
 
+			// Mappatura tra il DTO BookUpdateDto e il modello Book.
+			// BookUpdateDto rappresenta i dati necessari per l'aggiornamento di un libro esistente (ID, Titolo, Prezzo, ecc.).
 			CreateMap<BookUpdateDto, Book>().ReverseMap();
+
 		}
 	}
 }
