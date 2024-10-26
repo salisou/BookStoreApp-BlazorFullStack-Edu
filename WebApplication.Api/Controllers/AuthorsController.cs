@@ -7,6 +7,7 @@ using WebApplicationApi.Staic;
 
 namespace WebApplicationApi.Controllers
 {
+	// Controller che gestisce le operazioni CRUD (Create, Read, Update, Delete) degli Autori
 	[Route("api/[controller]")]
 	[ApiController]
 	public class AuthorsController : ControllerBase
@@ -15,6 +16,7 @@ namespace WebApplicationApi.Controllers
 		private readonly IMapper mapper;
 		private readonly ILogger<AuthorsController> logger;
 
+		// Costruttore del controller: riceve il contesto del database, il mapper per AutoMapper e il logger per il logging delle operazioni
 		public AuthorsController(BookStoreDbContext context, IMapper _mapper, ILogger<AuthorsController> _logger)
 		{
 			_context = context;
