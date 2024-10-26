@@ -97,7 +97,7 @@ namespace WebApplicationApi.Controllers
 		[HttpPut("{id}")]
 		public async Task<IActionResult> PutBook(int id, BookUpdateDto bookDto)
 		{
-			// Controlla che l'ID corrisponda
+			// Controlla che l'ID corrisponda 
 			if (id != bookDto.Id)
 			{
 				logger.LogWarning($"ID di aggiornamento non valido in: {nameof(PutBook)} - ID {id} 😭");
