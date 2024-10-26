@@ -46,7 +46,7 @@ namespace WebApplicationApi.Controllers
 		}
 
 		/// <summary>
-		/// Ottiene un autore specifico in base all'ID.
+		/// Ottiene un autore specifico in base all'ID
 		/// </summary>
 		/// <param name="id">L'ID dell'autore da recuperare.</param>
 		/// <returns>L'autore corrispondente all'ID fornito.</returns>
