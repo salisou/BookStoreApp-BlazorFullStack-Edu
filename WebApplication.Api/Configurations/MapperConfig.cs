@@ -2,6 +2,7 @@
 using WebApplicationApi.Dati;
 using WebApplicationApi.Models.Author;
 using WebApplicationApi.Models.Book;
+using WebApplicationApi.Models.User;
 
 namespace WebApplicationApi.Configurations
 {
@@ -44,6 +45,9 @@ namespace WebApplicationApi.Configurations
 			// Mappatura tra il DTO BookUpdateDto e il modello Book.
 			// BookUpdateDto rappresenta i dati necessari per l'aggiornamento di un libro esistente (ID, Titolo, Prezzo, ecc.).
 			CreateMap<BookUpdateDto, Book>().ReverseMap();
+
+
+			CreateMap<ApiUser, UserDto>().ReverseMap();
 
 		}
 	}

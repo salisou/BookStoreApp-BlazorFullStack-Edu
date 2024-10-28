@@ -1,8 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace WebApplicationApi.Dati;
 
-public partial class BookStoreDbContext : DbContext
+public partial class BookStoreDbContext : IdentityDbContext<ApiUser>
 {
 	public BookStoreDbContext()
 	{
@@ -23,6 +25,8 @@ public partial class BookStoreDbContext : DbContext
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
+		base.OnModelCreating(modelBuilder);
+
 		modelBuilder.Entity<Author>(entity =>
 		{
 			entity.HasKey(e => e.Id).HasName("PK__Authors__3214EC0779795DC6");
@@ -50,6 +54,61 @@ public partial class BookStoreDbContext : DbContext
 				.HasForeignKey(d => d.AuthorId)
 				.HasConstraintName("FK_Books_ToTable");
 		});
+
+		modelBuilder.Entity<IdentityRole>().HasData(
+				new IdentityRole
+				{
+					Name = "User",
+					NormalizedName = "USER",
+					Id = "afc22088-a6f4-40a4-8250-d933d35adce0"
+				},
+				new IdentityRole
+				{
+					Name = "Administrator",
+					NormalizedName = "ADMINISTRATOR",
+					Id = "f0482d99-62b3-44f3-86f9-52d079dc1085"
+				}
+			);
+
+		var hasher = new PasswordHasher<ApiUser>();
+
+		modelBuilder.Entity<ApiUser>().HasData(
+				new ApiUser
+				{
+					Id = "076fbb6c-257f-45a3-8351-9a2c84cd54fe",
+					Email = "admin@bookstoore.com",
+					NormalizedEmail = "ADMIN@BOOKSTORE.COM",
+					UserName = "admin@bookstoore.com",
+					NormalizedUserName = "ADMIN@BOOKSTORE.COM",
+					FirstName = "System",
+					LastName = "Admin",
+					PasswordHash = hasher.HashPassword(null, "P@ssword1"),
+				},
+				new ApiUser
+				{
+					Id = "cdc3ca1a-e07c-4ed7-87c5-f6e229a5174f",
+					Email = "user@bookstoore.com",
+					NormalizedEmail = "USER@BOOKSTORE.COM",
+					UserName = "user@bookstoore.com",
+					NormalizedUserName = "USER@BOOKSTORE.COM",
+					FirstName = "System",
+					LastName = "User",
+					PasswordHash = hasher.HashPassword(null, "P@ssword1"),
+				}
+			);
+
+		modelBuilder.Entity<IdentityUserRole<string>>().HasData(
+				new IdentityUserRole<string>
+				{
+					RoleId = "afc22088-a6f4-40a4-8250-d933d35adce0",
+					UserId = "cdc3ca1a-e07c-4ed7-87c5-f6e229a5174f"
+				},
+				new IdentityUserRole<string>
+				{
+					RoleId = "f0482d99-62b3-44f3-86f9-52d079dc1085",
+					UserId = "076fbb6c-257f-45a3-8351-9a2c84cd54fe"
+				}
+			);
 
 		OnModelCreatingPartial(modelBuilder);
 	}
