@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApplicationApi.Dati;
@@ -11,6 +12,7 @@ namespace WebApplicationApi.Controllers
 	// Controller che gestisce le operazioni CRUD (Create, Read, Update, Delete) sui libri
 	[Route("api/[controller]")]
 	[ApiController]
+	[Authorize] // Autorizzazione necessaria per accedere al controller.
 	public class BooksController : ControllerBase
 	{
 		private readonly BookStoreDbContext _context;
@@ -88,13 +90,13 @@ namespace WebApplicationApi.Controllers
 
 		/// <summary>
 		/// PUT: api/Books/5
-		/// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
 		/// Metodo per aggiornare le informazioni di un libro esistente
 		/// </summary>
 		/// <param name="id"></param>
 		/// <param name="bookDto"></param>
 		/// <returns></returns>
 		[HttpPut("{id}")]
+		[Authorize(Roles = "Administrator")]// Permesso di aggiornamento solo per gli amministratori.
 		public async Task<IActionResult> PutBook(int id, BookUpdateDto bookDto)
 		{
 			// Controlla che l'ID corrisponda 
@@ -142,11 +144,11 @@ namespace WebApplicationApi.Controllers
 		/// <summary>
 		/// POST: api/Books
 		/// Metodo per creare un nuovo libro
-		// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
 		/// </summary>
 		/// <param name="bookDto"></param>
 		/// <returns></returns>
 		[HttpPost]
+		[Authorize(Roles = "Administrator")]
 		public async Task<ActionResult<BookCreateDto>> PostBook(BookCreateDto bookDto)
 		{
 
@@ -173,6 +175,7 @@ namespace WebApplicationApi.Controllers
 		/// <param name="id"></param>
 		/// <returns></returns>
 		[HttpDelete("{id}")]
+		[Authorize(Roles = "Administrator")]
 		public async Task<IActionResult> DeleteBook(int id)
 		{
 			// Cerca il libro per ID

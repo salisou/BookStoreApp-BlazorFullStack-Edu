@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApplicationApi.Dati;
@@ -10,6 +11,7 @@ namespace WebApplicationApi.Controllers
 	// Controller che gestisce le operazioni CRUD (Create, Read, Update, Delete) degli Autori
 	[Route("api/[controller]")]
 	[ApiController]
+	[Authorize] // Autorizzazione necessaria per accedere al controller.
 	public class AuthorsController : ControllerBase
 	{
 		private readonly BookStoreDbContext _context;
@@ -80,6 +82,7 @@ namespace WebApplicationApi.Controllers
 		/// <param name="authorDto">I dati dell'autore aggiornati.</param>
 		/// <returns>Risultato dell'operazione di aggiornamento.</returns>
 		[HttpPut("{id}")]
+		[Authorize(Roles = "Administrator")] // // Permesso di aggiornamento solo per gli amministratori.
 		public async Task<IActionResult> PutAuthor(int id, AuthorUpdateDto authorDto)
 		{
 			if (id != authorDto.Id)
@@ -125,6 +128,7 @@ namespace WebApplicationApi.Controllers
 		/// <param name="authorDto">I dati dell'autore da creare.</param>
 		/// <returns>Risultato della creazione dell'autore.</returns>
 		[HttpPost]
+		[Authorize(Roles = "Administrator")]
 		public async Task<ActionResult<AuthorCreateDto>> PostAuthor(AuthorCreateDto authorDto)
 		{
 			try
@@ -149,6 +153,7 @@ namespace WebApplicationApi.Controllers
 		/// <param name="id">L'ID dell'autore da eliminare.</param>
 		/// <returns>Risultato dell'operazione di eliminazione.</returns>
 		[HttpDelete("{id}")]
+		[Authorize(Roles = "Administrator")]
 		public async Task<IActionResult> DeleteAuthor(int id)
 		{
 			try

@@ -1,81 +1,109 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Serilog;
+using System.Text;
 using WebApplicationApi.Configurations;
 using WebApplicationApi.Dati;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Aggiunge i servizi al contenitore.
 
-#region Srting Connection
-// Recupera la stringa di connessione dal file di configurazione (appsettings.json) usando la chiave "BookStoreAppDbConnection".
+#region String Connection
+// Recupera la stringa di connessione al database da "appsettings.json" 
+// usando la chiave "BookStoreAppDbConnection" e la salva in conString.
 var conString = builder.Configuration.GetConnectionString("BookStoreAppDbConnection");
 
-// Registra il contesto del database BookStoreDbContext nel contenitore dei servizi,
-// specificando l'uso di SQL Server con la stringa di connessione fornita.
+// Registra il contesto di database BookStoreDbContext per gestire le operazioni sul database 
+// utilizzando SQL Server e la stringa di connessione definita sopra.
 builder.Services.AddDbContext<BookStoreDbContext>(options => options.UseSqlServer(conString));
 #endregion
 
-#region Configurazione Identity Services
-
+#region Configurazione dei servizi di Identity
+// Configura il sistema di Identity per gestire l'autenticazione e l'autorizzazione 
+// tramite ruoli per l'applicazione API, utilizzando ApiUser e IdentityRole.
 builder.Services.AddIdentityCore<ApiUser>()
-	// Configura Identity per gestire i ruoli.
+	// Aggiunge il supporto per la gestione dei ruoli con IdentityRole.
 	.AddRoles<IdentityRole>()
-	// Connessione al database utilizzando BookStoreDbContext
+	// Collega Identity al contesto BookStoreDbContext per salvare e recuperare i dati dal database.
 	.AddEntityFrameworkStores<BookStoreDbContext>();
 #endregion
 
-#region AutoMapper
-// Registra AutoMapper nel contenitore dei servizi,
-// specificando la classe di configurazione dei mapper (MapperConfig)
-// per mappare gli oggetti tra diversi tipi.
+#region Configurazione di AutoMapper
+// Registra AutoMapper come servizio per mappare oggetti tra tipi diversi,
+// utilizzando la classe di configurazione MapperConfig definita nel progetto.
 builder.Services.AddAutoMapper(typeof(MapperConfig));
 #endregion
 
-
+// Aggiunge il supporto per i controller al progetto.
 builder.Services.AddControllers();
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+// Configura Swagger/OpenAPI per la generazione della documentazione interattiva dell'API.
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 #region Configurazione di Serilog
-// Configurazione di Serilog come sistema di logging
+// Configura Serilog come sistema di logging leggendo le impostazioni dal file di configurazione
+// e stampando i log su console.
 builder.Host.UseSerilog((ctx, lc) =>
 	lc.WriteTo.Console()
-	.ReadFrom.Configuration(ctx.Configuration)
+	  .ReadFrom.Configuration(ctx.Configuration)
 );
 #endregion
 
-#region Configurazione del CORS
-// Configura CORS (Cross-Origin Resource Sharing) per consentire richieste da qualsiasi origine.
-// Questa politica permette qualsiasi metodo, intestazione e origine nelle richieste cross-origin,
-// rendendo l'API accessibile da qualsiasi dominio.
+#region Configurazione del CORS (Cross-Origin Resource Sharing)
+// Configura le politiche di CORS per consentire l'accesso all'API da qualsiasi origine
+// con qualsiasi metodo e intestazione, utilizzando una politica chiamata "AllowAll".
 builder.Services.AddCors(options =>
 {
-	options.AddPolicy("AllowAll", b => b.AllowAnyMethod()      // Consente qualsiasi metodo HTTP (GET, POST, PUT, DELETE, ecc.)
-										.AllowAnyHeader()      // Consente qualsiasi intestazione HTTP (incluso Authorization, Content-Type, ecc.)
-										.AllowAnyOrigin());    // Consente qualsiasi origine (dominio) di effettuare richieste all'API
+	options.AddPolicy("AllowAll", b => b.AllowAnyMethod()     // Consente tutti i metodi HTTP (GET, POST, ecc.)
+										.AllowAnyHeader()     // Consente tutte le intestazioni (Authorization, Content-Type, ecc.)
+										.AllowAnyOrigin());   // Consente qualsiasi origine di effettuare richieste.
 });
 #endregion
 
+// Configura il servizio di autenticazione utilizzando JWT (JSON Web Token).
+// Specifica come validare i token e impostare parametri come il Key, l'Audience e l'Issuer.
+builder.Services.AddAuthentication(options =>
+{
+	options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+	options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+	options.TokenValidationParameters = new TokenValidationParameters
+	{
+		ValidateIssuerSigningKey = true,                            // Verifica la firma del token.
+		ValidateIssuer = true,                                      // Verifica l'issuer del token.
+		ValidateAudience = true,                                    // Verifica l'audience del token.
+		ValidateLifetime = true,                                    // Verifica la validità del token.
+		ClockSkew = TimeSpan.Zero,                                  // Disabilita lo scarto temporale.
+		ValidIssuer = builder.Configuration["JwtSettings:Issuer"],  // Imposta l'issuer valido.
+		ValidAudience = builder.Configuration["JwtSettings:Audience"], // Imposta l'audience valida.
+		IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:key"])) // Imposta la chiave di firma.
+	};
+});
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+
+// Configura il middleware per il ciclo di vita delle richieste HTTP.
 if (app.Environment.IsDevelopment())
 {
+	// Abilita Swagger per la documentazione interattiva in ambiente di sviluppo.
 	app.UseSwagger();
 	app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+app.UseHttpsRedirection();  // Forza le richieste HTTP su HTTPS.
 
-// chiedo di usarlo
-app.UseCors("AllowAll");
+app.UseCors("AllowAll");    // Abilita la politica CORS "AllowAll" per tutte le richieste.
 
-app.UseAuthorization();
+app.UseAuthentication();     // Abilita l'autenticazione per il processo di autorizzazione.
 
-app.MapControllers();
+app.UseAuthorization();      // Abilita il middleware di autorizzazione per controllare i permessi di accesso.
 
-app.Run();
+app.MapControllers();        // Mappa i controller definiti nel progetto agli endpoint corrispondenti.
+
+app.Run();                   // Avvia l'applicazione.
