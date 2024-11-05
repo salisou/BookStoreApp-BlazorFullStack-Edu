@@ -1,0 +1,79 @@
+﻿@page "/users/register"
+@inject IClient httpClient
+@inject NavigationManager navManager
+
+<h3>Register new account</h3>
+
+@if(string.IsNullOrEmpty(message) == false)
+{
+    <div class="alert alert-danger" role="alert">
+        <p>@message</p>
+    </div>
+}
+<div>
+    <EditForm Model="RegistretionModel" OnValidSubmit="HandleRegistration">
+        <DataAnnotationsValidator/>
+        <ValidationSummary/>
+
+        <div class="form-group">
+            <label class="email">Indirizzo Email</label>
+            <InputText class="form-control" @bind-Value="RegistretionModel.Email"/>
+            <ValidationMessage For="@(() => RegistretionModel.Email)"/>
+        </div>
+
+        <div class="form-group">
+            <label class="firstname">Nome</label>
+            <InputText class="form-control" @bind-Value="RegistretionModel.FirstName" />
+            <ValidationMessage For="@(() => RegistretionModel.FirstName)" />
+        </div>
+
+        <div class="form-group">
+            <label class="lastnme">Cognome</label>
+            <InputText class="form-control" @bind-Value="RegistretionModel.LastName"/>
+            <ValidationMessage For="@(() => RegistretionModel.LastName)"/>
+        </div>
+
+        <div class="form-group">
+            <label class="password">Password</label>
+            <InputText class="form-control" type="password" @bind-Value="RegistretionModel.Password" />
+            <ValidationMessage For="@(() => RegistretionModel.Password)" />
+        </div>
+
+        <button type="submit" class="btn btn-success">Registrati</button>
+
+    </EditForm>
+</div>
+
+@code {
+    UserDto RegistretionModel = new UserDto
+    {
+        Role = "User"
+    };
+
+    string message = string.Empty;
+
+    private async Task HandleRegistration()
+    {
+        RegistretionModel.Role = "User";
+
+        try
+        {
+            await httpClient.RegisterAsync(RegistretionModel);
+        }
+        catch (ApiException  ex)
+        {
+            if(ex.StatusCode >= 200 && ex.StatusCode <= 299)
+            {
+                NavigateToLogin();
+            }
+            message = ex.Response;
+        }
+    }
+
+    private void NavigateToLogin()
+    {
+        navManager.NavigateTo("/users/login");
+
+    }
+
+}
